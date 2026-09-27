@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>寸法フィッティングルーム</title>
+<meta name="description" content="身長・体重と服の実寸（着丈・身幅・肩幅・袖丈、ウエスト・股下など）から、着たときのサイズ感を2Dと3Dで確認できる試着シミュレーター。">
+<meta property="og:title" content="寸法フィッティングルーム">
+<meta property="og:description" content="体型と服の実寸から、着たときのサイズ感を試算する試着シミュレーター。">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M11 4 4 8l3 6 3-1.5V28h12V12.5l3 1.5 3-6-7-4c-.5 2-2.5 3.5-5 3.5S11.5 6 11 4z' fill='%232F5DA8'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=IBM+Plex+Mono:wght@500&display=swap">
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>寸法フィッティングルーム</h1>
+    <p>体型と服の実寸から、着たときのサイズ感を試算します</p>
+  </header>
+
+  <div class="grid">
+    <!-- 入力 -->
+    <div class="panel">
+      <h2>あなたの体型</h2>
+      <fieldset>
+        <div class="seg" role="group" aria-label="性別">
+          <button type="button" id="sex-m" aria-pressed="true">男性</button>
+          <button type="button" id="sex-f" aria-pressed="false">女性</button>
+        </div>
+        <div class="row">
+          <label>年齢<span class="unit" data-unit="歳"><input id="age" type="number" min="10" max="99" value="30"></span></label>
+          <label>体格<select id="build"><option value="slim">細身</option><option value="std" selected>標準</option><option value="sturdy">がっしり</option></select></label>
+        </div>
+        <div class="row">
+          <label>身長<span class="unit" data-unit="cm"><input id="height" type="number" min="130" max="210" value="170"></span></label>
+          <label>体重<span class="unit" data-unit="kg"><input id="weight" type="number" min="30" max="150" value="63"></span></label>
+        </div>
+      </fieldset>
+      <div class="mydata" id="mydata">
+        <p class="hint" id="mydata-status" role="status"></p>
+        <div class="mydata-actions">
+          <button class="btn" type="button" id="profile-save">マイデータに保存</button>
+          <button class="btn ghost" type="button" id="profile-delete">削除</button>
+        </div>
+      </div>
+      <details>
+        <summary>推定寸法を確認・実測値で上書き</summary>
+        <div class="est">
+          <label>背肩幅<span class="unit" data-unit="cm"><input id="o-shoulder" type="number" step="0.5"></span></label>
+          <label>胸囲<span class="unit" data-unit="cm"><input id="o-chest" type="number" step="0.5"></span></label>
+          <label>ウエスト<span class="unit" data-unit="cm"><input id="o-waist" type="number" step="0.5"></span></label>
+          <label>ヒップ<span class="unit" data-unit="cm"><input id="o-hip" type="number" step="0.5"></span></label>
+          <label>腕の長さ<span class="unit" data-unit="cm"><input id="o-arm" type="number" step="0.5"></span></label>
+          <label>股下<span class="unit" data-unit="cm"><input id="o-inseam" type="number" step="0.5"></span></label>
+        </div>
+        <p class="hint" style="margin-top:8px">空欄の項目は、身長・体重・体格から推定した値（薄字）を使います。背肩幅は左右の肩先を背中側で測った長さ、腕の長さは肩先から手首まで、股下は床から股までの高さです。</p>
+      </details>
+
+      <h2>試着する服</h2>
+      <div class="seg cat" role="group" aria-label="服のカテゴリ">
+        <button type="button" id="cat-top" aria-pressed="true">トップス</button>
+        <button type="button" id="cat-bottom" aria-pressed="false">ボトムス</button>
+      </div>
+      <fieldset>
+        <div class="samples" id="samples"></div>
+        <div class="row">
+          <label>種類<select id="gtype"></select></label>
+          <label>シルエット<select id="gfit"></select></label>
+        </div>
+        <div class="row" id="top-fields">
+          <label>着丈<span class="unit" data-unit="cm"><input id="g-len" type="number" step="0.5" value="70"></span></label>
+          <label>身幅<span class="unit" data-unit="cm"><input id="g-width" type="number" step="0.5" value="52"></span></label>
+          <label>肩幅<span class="unit" data-unit="cm"><input id="g-shoulder" type="number" step="0.5" value="46"></span></label>
+          <label>袖丈<span class="unit" data-unit="cm"><input id="g-sleeve" type="number" step="0.5" value="20"></span></label>
+        </div>
+        <div class="row" id="bottom-fields" hidden>
+          <label>ウエスト<span class="unit" data-unit="cm"><input id="p-waist" type="number" step="0.5" value="80"></span></label>
+          <label>ヒップ<span class="unit" data-unit="cm"><input id="p-hip" type="number" step="0.5" value="100"></span></label>
+          <label>股上<span class="unit" data-unit="cm"><input id="p-rise" type="number" step="0.5" value="27"></span></label>
+          <label>股下<span class="unit" data-unit="cm"><input id="p-inseam" type="number" step="0.5" value="72"></span></label>
+          <label>わたり幅<span class="unit" data-unit="cm"><input id="p-thigh" type="number" step="0.5" value="31.5"></span></label>
+          <label>裾幅<span class="unit" data-unit="cm"><input id="p-hem" type="number" step="0.5" value="20"></span></label>
+        </div>
+        <label style="flex-direction:row;align-items:center;gap:8px;color:var(--ink);font-size:13px"><input id="g-stretch" type="checkbox" style="width:auto"> 伸縮性のある生地（ニット・ストレッチ）</label>
+        <div class="swatches" role="group" aria-label="服の色" id="swatches"></div>
+        <p class="hint" id="garment-hint"></p>
+      </fieldset>
+    </div>
+
+    <!-- ステージ -->
+    <div class="stage">
+      <div class="stagebar">
+        <div class="seg" role="group" aria-label="表示方法">
+          <button type="button" id="mode-2d" aria-pressed="true">2D</button>
+          <button type="button" id="mode-3d" aria-pressed="false">3D</button>
+        </div>
+        <div class="views" id="views3d" hidden>
+          <button type="button" class="chipbtn" data-yaw="0">正面</button>
+          <button type="button" class="chipbtn" data-yaw="90">横</button>
+          <button type="button" class="chipbtn" data-yaw="180">後ろ</button>
+          <label class="chk"><input type="checkbox" id="heat" checked> ゆとりを色で表示</label>
+        </div>
+      </div>
+      <svg id="stage" role="img" aria-label="試着プレビュー"></svg>
+      <div id="view3d" hidden><p class="hint" id="no3d" hidden>3D表示用のライブラリ（Three.js）を読み込めませんでした。通信環境を確認して再読み込みしてください。</p></div>
+      <div id="heatlegend" hidden>
+        <div class="heatbar"></div>
+        <div class="heatlabels"><span>きつい</span><span>ぴったり</span><span>ほどよい</span><span>ゆったり</span><span>大きい</span></div>
+        <p class="hint">色は、その高さでの服と体の周囲の差（ゆとり）を示します。ドラッグで回転、ホイールで拡大・縮小できます。</p>
+      </div>
+      <div class="legend" id="legend2d">
+        <span><i></i>試着中の服</span>
+        <span><i class="g"></i>比較中の手持ちの服</span>
+        <span><i class="t"></i>メジャー</span>
+      </div>
+      <p class="src">マネキンの輪郭は <a href="https://www.airc.aist.go.jp/dhrt/fbodydb/index.html" target="_blank" rel="noopener">産業技術総合研究所 AIST/HQL人体寸法・形状データベース2003</a>（青年男性49名・女性48名の平均値）の高さ・幅の比率から作り、体重と体格に応じて幅を補正しています。</p>
+    </div>
+
+    <!-- レポート -->
+    <div class="panel report">
+      <h2>フィット判定</h2>
+      <div id="verdict" class="verdict"></div>
+      <div class="items" id="items"></div>
+
+      <h2>手持ちの服と比べる</h2>
+      <div class="refbar">
+        <label>比較対象<select id="ref-select"></select></label>
+        <button class="btn ghost" type="button" id="ref-del">削除</button>
+      </div>
+      <div id="ref-table"></div>
+      <div class="refbar">
+        <label>名前をつけて登録<input id="ref-name" type="text" placeholder="例：いちばん着る服"></label>
+        <button class="btn" type="button" id="ref-add">登録</button>
+      </div>
+      <p class="hint">サイズがちょうどいい手持ちの服を登録しておくと、体型の推定誤差に左右されずに比較できます。登録内容はこのブラウザにだけ保存されます。</p>
+    </div>
+  </div>
+
+  <footer class="foot">
+    <p>判定は、統計データと入力値から計算した目安です。実際の着心地は、生地や仕立て、好みによって変わります。</p>
+    <p>入力した体型や登録した服のデータは、お使いのブラウザの中にだけ保存されます。外部には送信しません。</p>
+    <p>人体寸法の出典：河内まき子・持丸正明、2006：AIST/HQL人体寸法・形状データベース2003、産業技術総合研究所<br>3D表示：<a href="https://threejs.org/" target="_blank" rel="noopener">Three.js</a>（MIT License）</p>
+  </footer>
+</div>
+
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>
